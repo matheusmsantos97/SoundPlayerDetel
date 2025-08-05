@@ -151,10 +151,31 @@ class AddMessageDialog(QDialog):
         self.interval_unit_combo.setToolTip("Unidade de tempo para o intervalo")
         interval_layout.addWidget(self.interval_unit_combo)
         
+        # NOVA ADIÇÃO: Label para mostrar o valor convertido
+        self.interval_display = QLabel()
+        self.interval_display.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        interval_layout.addWidget(self.interval_display)
+        
         layout.addRow("Intervalo de repetição:", interval_layout)
         
+        # Atualiza o display inicialmente
+        self.update_interval_display()
+        
+        # Conecta os sinais para atualizar o display
+        self.interval_spin.valueChanged.connect(self.update_interval_display)
+        self.interval_unit_combo.currentTextChanged.connect(self.update_interval_display)
+
+        # Label explicativo sobre a primeira execução
+        first_play_label = QLabel("🎵 A primeira execução será imediata!")
+        first_play_label.setStyleSheet("color: green; font-weight: bold; margin-top: 5px;")
+        layout.addRow(first_play_label)
+        
         # Informações adicionais
-        info_label = QLabel("Prioridade 1 é a mais alta. Mensagens serão tocadas em sequência após o intervalo.")
+        info_label = QLabel(
+            "• Prioridade 1 é a mais alta\n"
+            "• A mensagem tocará imediatamente na primeira vez\n"
+            "• O intervalo de repetição começa a contar após o término da primeira execução"
+        )
         info_label.setWordWrap(True)
         info_label.setStyleSheet("color: gray; font-style: italic; font-size: 11px;")
         layout.addRow(info_label)
@@ -175,9 +196,23 @@ class AddMessageDialog(QDialog):
         
         self.setLayout(layout)
     
+    def update_interval_display(self):
+        """Atualiza o display mostrando o intervalo real."""
+        value = self.interval_spin.value()
+        unit = self.interval_unit_combo.currentText()
+        
+        if unit == "Segundos":
+            self.interval_display.setText(f"= {value} segundos entre repetições")
+            self.interval_display.setStyleSheet("color: blue; font-weight: bold;")
+        else:
+            total_seconds = value * 60
+            self.interval_display.setText(f"= {total_seconds} segundos entre repetições")
+            self.interval_display.setStyleSheet("color: blue; font-weight: bold;")
+    
     def get_interval_in_minutes(self):
         """
         Retorna o intervalo convertido para minutos.
+        Mantém precisão para intervalos em segundos.
         
         Returns:
             float: Intervalo em minutos
@@ -186,10 +221,10 @@ class AddMessageDialog(QDialog):
         is_seconds = self.interval_unit_combo.currentText() == "Segundos"
         
         if is_seconds:
-            # Converte segundos para minutos
+            # Converte segundos para minutos com precisão
             return interval_value / 60.0
         else:
-            return interval_value
+            return float(interval_value)
         
     def get_interval_unit(self):
         """

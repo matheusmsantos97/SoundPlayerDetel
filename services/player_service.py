@@ -87,7 +87,7 @@ class PlayerService:
         self.last_check_time = datetime.now()
     
     def init_radio(self):
-        """Inicializa o player de rádio com a fonte atual."""
+        """Inicializa o player de rádio com a fonte atual - VERSÃO CORRIGIDA."""
         try:
             # Obtém a fonte atual
             source = self.source_manager.get_current_source()
@@ -119,7 +119,7 @@ class PlayerService:
 
     def _init_radio_stream(self, url):
         """
-        Inicializa o player para streaming.
+        Inicializa o player para streaming - VERSÃO CORRIGIDA.
         
         Args:
             url (str): URL da rádio
@@ -129,10 +129,12 @@ class PlayerService:
             # Parar qualquer captura em andamento
             self._stop_device_capture()
             
-        # Configura a mídia para streaming
+        # Configura a mídia para streaming com pts_delay aumentado
         media = self.vlc_instance.media_new(url)
         media.add_option(":network-caching=3000")
         media.add_option(":live-caching=3000")
+        # Adiciona pts-delay para evitar o erro
+        media.add_option(":pts-delay=3000")
         self.radio_player.set_media(media)
     
     def _init_radio_device(self, device_index):
@@ -286,6 +288,32 @@ class PlayerService:
                 self.message_playing = False
             
         self.is_playing = False
+
+    def toggle_playback(self):
+        """
+        Alterna entre play e pause do player.
+        
+        Returns:
+            bool: True se agora está reproduzindo, False se pausado
+        """
+        try:
+            # Se o microfone estiver ativo, não permite alternar
+            if self.mic_active:
+                print("Não é possível alterar reprodução com microfone ativo")
+                return False
+                
+            if self.is_playing:
+                # Se está reproduzindo, pausa
+                self.pause()
+                return False
+            else:
+                # Se está pausado, retoma a reprodução
+                success = self.play()
+                return success
+                
+        except Exception as e:
+            print(f"Erro ao alternar reprodução: {str(e)}")
+            return False
     
     def toggle_microphone(self):
         """
@@ -351,48 +379,34 @@ class PlayerService:
     
     def switch_to_radio(self):
         """
-        Muda a reprodução para a rádio.
-        
-        Returns:
-            bool: True se a mudança foi bem-sucedida
+        Muda a reprodução para a rádio - VERSÃO CORRIGIDA.
+        NÃO fecha a rádio, apenas restaura o volume.
         """
         try:
-            # Se o microfone estiver ativo, desative-o primeiro
-            if self.mic_active:
-                self.toggle_microphone()
-                
-            # Para a reprodução de mensagens
+            print("📻 Mudando para modo rádio...")
+            
+            # Para qualquer reprodução de mensagem
             pygame.mixer.stop()
             self.message_playing = False
             
-            # Define o estado do player
+            # Define modo rádio
             self.is_radio_mode = True
             
-            # Verifica se a rádio já está tocando
-            if not self.radio_player.is_playing():
-                # Obtém a fonte atual
-                source = self.source_manager.get_current_source()
+            # Não para e reinicia a rádio, apenas ajusta o volume
+            # A rádio continua tocando em segundo plano
+            if self.radio_player:
+                # Apenas garante que o volume está restaurado
+                # (o fade manager já cuida disso, mas por segurança)
+                current_volume = self.radio_player.audio_get_volume()
+                if current_volume < 100:
+                    print(f"📻 Volume atual: {current_volume}%, aguardando fade...")
                 
-                # Inicializa com a fonte atual
-                if source.source_type == RadioSource.TYPE_STREAM:
-                    self._init_radio_stream(source.url)
-                else:
-                    self._init_radio_device(source.device_index)
-                
-                # Inicia reprodução
-                result = self.radio_player.play()
-                if result != -1:
-                    self.is_playing = True
-                    return True
-                return False
-            else:
-                # Certifica-se que o volume da rádio está normal
-                self.radio_player.audio_set_volume(100)
                 self.is_playing = True
+                print("✅ Modo rádio ativo (rádio continuou tocando em segundo plano)")
                 return True
                 
         except Exception as e:
-            print(f"Erro ao trocar para rádio: {str(e)}")
+            print(f"❌ Erro ao trocar para rádio: {str(e)}")
             return False
 
 

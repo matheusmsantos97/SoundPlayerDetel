@@ -1,0 +1,11 @@
+{
+  "sources": [
+    {
+      "name": "JB FM",
+      "source_type": "stream",
+      "url": "https://24233.live.streamtheworld.com/JBFMAAC.aac",
+      "device_index": null
+    }
+  ],
+  "current_source_index": 0
+}

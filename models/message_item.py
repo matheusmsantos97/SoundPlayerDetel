@@ -7,8 +7,6 @@ Definição da classe MessageQueueItem que representa um item na fila de reprodu
 
 from datetime import datetime, timedelta
 
-# No arquivo message_item.py, modifique a classe MessageQueueItem para suportar intervalos fracionários:
-
 class MessageQueueItem:
     """
     Representa uma mensagem na fila de reprodução.
@@ -18,15 +16,18 @@ class MessageQueueItem:
     - Prioridade (1-10, onde 1 é mais alta)
     - Intervalo de repetição em minutos (pode ser fracionário para representar segundos)
     - Horário da próxima reprodução
+    - Último horário em que foi reproduzida
     """
     
     def __init__(self, filename, priority, interval):
-        self.filename = filename
-        self.priority = priority
-        self.interval = float(interval)  # Converte para float para suportar valores fracionários
-        self.next_play_time = datetime.now()
-        self.end_time = None
-        self.is_pending = priority > 1  # Mensagens de prioridade > 1 começam pendentes
+            self.filename = filename
+            self.priority = priority
+            self.interval = float(interval)  # Intervalo em minutos
+            self.interval_seconds = int(float(interval) * 60)  # Converte para segundos
+            self.next_play_time = datetime.now()
+            self.end_time = None
+            self.is_pending = priority > 1  # Mensagens com prioridade >1 começam pendentes
+            self.last_played = None
         
     def __lt__(self, other):
         """
@@ -44,39 +45,18 @@ class MessageQueueItem:
     
     def update_next_play_time(self):
         """
-        Atualiza o próximo horário de reprodução baseado no horário de término da mensagem anterior.
-        
-        Returns:
-            bool: True se a mensagem deve ser repetida, False caso contrário
+        Atualiza o horário da próxima reprodução baseado no intervalo.
+        O intervalo começa a contar APÓS o término completo (incluindo fade).
         """
         if self.interval <= 0:
-            # Se intervalo é 0, não repete
             return False
         
-        # Calcula o próximo horário de reprodução com base no horário de término
-        # MODIFICAÇÃO IMPORTANTE: Garante a precisão do cálculo do intervalo
-        if self.end_time:
-            # Cálculo preciso para suportar segundos
-            seconds = self.interval * 60  # Converte minutos para segundos
-            self.next_play_time = self.end_time + timedelta(seconds=seconds)
-            print(f"INTERVALO: Horário de término definido para {self.end_time.strftime('%H:%M:%S')}")
-            print(f"INTERVALO: Próxima reprodução em {seconds} segundos")
-            print(f"INTERVALO: Agendado para {self.next_play_time.strftime('%H:%M:%S')}")
-        else:
-            # Se não houver horário de término, usa o horário atual
-            seconds = self.interval * 60
-            current_time = datetime.now()
-            self.next_play_time = current_time + timedelta(seconds=seconds)
-            print(f"INTERVALO: Sem horário de término, usando hora atual {current_time.strftime('%H:%M:%S')}")
-            print(f"INTERVALO: Próxima reprodução em {seconds} segundos")
-            print(f"INTERVALO: Agendado para {self.next_play_time.strftime('%H:%M:%S')}")
-        
-        # Formata a exibição de acordo com o intervalo
-        if self.interval < 1.0:
-            seconds = int(self.interval * 60)
-            print(f"Próxima reprodução de '{self.filename}' agendada para: {self.get_next_play_time_str()} (a cada {seconds} segundos)")
-        else:
-            print(f"Próxima reprodução de '{self.filename}' agendada para: {self.get_next_play_time_str()} (a cada {self.interval:.1f} minutos)")
+        # Garante que temos um tempo de término válido
+        if not self.end_time:
+            self.end_time = datetime.now()
+            
+        # Calcula o próximo horário baseado no término + intervalo
+        self.next_play_time = self.end_time + timedelta(seconds=self.interval_seconds)
         
         return True
     
