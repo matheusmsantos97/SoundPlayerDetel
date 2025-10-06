@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-JB FM Player - Sistema de Rádio com Mensagens
+Sound Player Detel - Sistema de Rádio com Mensagens
 CONFIGURAÇÃO PARA WINDOWS: Usa pasta RadioTeste/AUDIO
 """
 
@@ -142,7 +142,7 @@ def create_info_file(audio_folder):
         if not info_file.exists():
             from datetime import datetime
             
-            info_content = f"""JB FM PLAYER - PASTA DE ÁUDIO
+            info_content = f"""Sound Player Detel - PASTA DE ÁUDIO
 ===============================
 
 📁 LOCALIZAÇÃO: {audio_folder}
@@ -157,7 +157,7 @@ def create_info_file(audio_folder):
 
 📋 COMO USAR:
    1. Copie seus arquivos de áudio para esta pasta
-   2. Abra o JB FM Player
+   2. Abra o Sound Player Detel
    3. Os arquivos aparecerão em "Mensagens Disponíveis"
    4. Use "🔄 Atualizar Lista" se adicionar arquivos com o programa aberto
    5. Adicione mensagens à fila de reprodução conforme necessário
@@ -180,7 +180,7 @@ def create_info_file(audio_folder):
    └── ui/             ← Arquivos da interface
 
 Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}
-JB FM Player v1.0
+Sound Player Detel v1.0
 """
             
             with open(info_file, 'w', encoding='utf-8') as f:
@@ -296,7 +296,7 @@ def main():
     Função principal simplificada.
     """
     print("=" * 60)
-    print("🎵 JB FM PLAYER - SISTEMA DE RÁDIO COM MENSAGENS")
+    print("🎵 SOUND PLAYER DETEL - SISTEMA DE RÁDIO COM MENSAGENS")
     print("=" * 60)
     print(f"📂 Pasta do projeto: {Path(__file__).parent}")
     print()
@@ -331,7 +331,7 @@ def main():
         
         # 3. Iniciar aplicação Qt
         app = QApplication(sys.argv)
-        app.setApplicationName("JB FM Player")
+        app.setApplicationName("Sound Player Detel")
         app.setApplicationVersion("1.0")
         
         # 4. Importar e criar janela principal
@@ -357,7 +357,7 @@ def main():
             return
         
         window = RadioPlayerWindow()
-        window.setWindowTitle("🎵 JB FM Player - Sistema de Rádio")
+        window.setWindowTitle("🎵 Sound Player Detel")
         window.show()
         
         # 5. Mensagem de sucesso
@@ -371,7 +371,7 @@ def main():
         # 6. Executar loop principal
         exit_code = app.exec()
         
-        print("\n👋 JB FM Player encerrado. Até mais!")
+        print("\n👋 Sound Player Detel encerrado. Até mais!")
         sys.exit(exit_code)
         
     except KeyboardInterrupt:
@@ -402,7 +402,7 @@ def main():
             
             QMessageBox.critical(
                 None,
-                "Erro do JB FM Player",
+                "Erro do Sound Player Detel",
                 f"Erro inesperado:\n\n{str(e)}\n\n"
                 "Verifique o console para mais detalhes."
             )

@@ -112,7 +112,7 @@ class RadioSourceManager:
         """Cria fontes padrão se não existirem configurações"""
         # Fonte padrão de streaming - JB FM
         default_stream = RadioSource(
-            name="JB FM",
+            name="SOUND PLAYER DETEL",
             source_type=RadioSource.TYPE_STREAM,
             url="https://24233.live.streamtheworld.com/JBFMAAC.aac"
         )

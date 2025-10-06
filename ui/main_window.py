@@ -240,7 +240,7 @@ class RadioPlayerWindow(QMainWindow):
         # Título com configuração de fonte
         title_layout = QHBoxLayout()
         
-        title_label = QLabel("JB FM Player")
+        title_label = QLabel("Sound Player Detel")
         title_label.setFont(QFont('Arial', 18, QFont.Weight.Bold))
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_layout.addWidget(title_label, 1)  # Adicionado stretch factor 1
@@ -489,7 +489,7 @@ class RadioPlayerWindow(QMainWindow):
             self.queue_table.repaint()
     
     def open_messages_folder(self):
-        """CORRIGIDO: Abre a pasta AUDIO no explorador de arquivos."""
+
         try:
             import subprocess
             import platform
@@ -643,7 +643,7 @@ class RadioPlayerWindow(QMainWindow):
             info_file = self.messages_path / "COMO_USAR.txt"
             
             if not info_file.exists():
-                info_content = f"""PASTA DE ÁUDIO - JB FM PLAYER
+                info_content = f"""PASTA DE ÁUDIO - SOUND PLAYER DETEL
 ========================================
 
 Esta é a pasta onde você deve colocar seus arquivos de áudio.
@@ -673,7 +673,7 @@ DICAS:
 • Evite caracteres especiais nos nomes
 • Organize por categorias se necessário
 
-Criado automaticamente pelo JB FM Player
+Criado automaticamente pelo Sound Player Detel
 Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}
 """
                 
